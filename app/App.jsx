@@ -20,8 +20,6 @@ import FriendsScreen from './src/screens/Friends';
 import './src/core/fontawesome'
 
 
-
-
 const Stack = createNativeStackNavigator();
 
 function App() {
@@ -154,6 +152,7 @@ function App() {
 
   
 }
+
 
 
 export default App;

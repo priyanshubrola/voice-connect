@@ -1,58 +1,120 @@
-import { useEffect, useLayoutEffect } from "react"
-import { 
-	Animated,
-	SafeAreaView, 
-	StatusBar, 
-	Text, 
-	View
-} from "react-native"
+import React, { useRef, useEffect, useState } from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  StatusBar,
+  ActivityIndicator
+} from 'react-native';
+import Video from 'react-native-video';
+import Tts from 'react-native-tts';
+import { useNavigation } from '@react-navigation/native';
+import useGlobal from '../core/global';
 
-import Title from "../common/Title"
+const SplashScreen = () => {
+  const navigation = useNavigation();
+  const authenticated = useGlobal(state => state.authenticated);
+  const videoRef = useRef(null);
+  const [videoReady, setVideoReady] = useState(false);
+  const [spoken, setSpoken] = useState(false);
 
-function SplashScreen({ navigation }) {
+  useEffect(() => {
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.seek(0);
+      }
+    };
+  }, []);
 
-	useLayoutEffect(() => {
-		navigation.setOptions({
-			headerShown: false
-		})
-	}, [])
+  const handleNavigation = () => {
+    setTimeout(() => {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: authenticated ? 'Micc' : 'Mic' }],
+      });
+    }, 10);
+  };
 
-	const translateY = new Animated.Value(0)
-	const duration = 800
+  const speakWelcome = () => {
+    if (!spoken) {
+      Tts.stop();
+      Tts.setDefaultRate(0.5);
+      Tts.setDefaultPitch(1.1);
+      Tts.speak('Welcome to Voice Connect');
+      setSpoken(true);
+    }
+  };
 
-	useEffect(() => {
-		Animated.loop(
-			Animated.sequence([
-				Animated.timing(translateY, {
-					toValue: 20,
-					duration: duration,
-					useNativeDriver: true
-				}),
-				Animated.timing(translateY, {
-					toValue: 0,
-					duration: duration,
-					useNativeDriver: true
-				})
-			])
-		).start()
-	}, [])
+  return (
+    <View style={styles.container}>
+      <StatusBar hidden />
 
+      <Video
+        ref={videoRef}
+        source={require('../assets/IntroVoiceConnect.mp4')}
+        style={styles.video}
+        muted
+        repeat={false}
+        resizeMode="cover"
+        rate={1.5} // ✅ 1.5x playback speed
+        onEnd={handleNavigation}
+        onReadyForDisplay={() => {
+          setVideoReady(true);
+          speakWelcome(); // ✅ triggers at the perfect moment
+        }}
+        onError={(error) => {
+          console.log('Video error:', error);
+          handleNavigation();
+        }}
+      />
 
-	return (
-		<SafeAreaView
-			style={{
-				flex: 1,
-				alignItems: 'center',
-				justifyContent: 'center',
-				backgroundColor: 'black'
-			}}
-		>
-			<StatusBar barStyle='light-content' />
-			<Animated.View style={[{ transform: [{ translateY }] }]}>
-				<Title text='RealtimeChat' color='white' />
-			</Animated.View>
-		</SafeAreaView>
-	)
-}
+      {!videoReady && (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#FFFFFF" />
+        </View>
+      )}
 
-export default SplashScreen
+      <View style={styles.overlay}>
+        <Text style={styles.appName}>VoiceConnect</Text>
+      </View>
+    </View>
+  );
+};
+
+// styles unchanged
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: 'black',
+  },
+  video: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    bottom: 0,
+    right: 0,
+  },
+  overlay: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  appName: {
+    fontSize: 27,
+    fontFamily: 'serif',
+    fontWeight: 'bold',
+    color: '#E0B0FF',
+    textShadowColor: 'rgba(0,0,0,0.8)',
+    textShadowOffset: { width: 2, height: 2 },
+    textShadowRadius: 10,
+    marginTop: 135,
+  },
+  loadingContainer: {
+    ...StyleSheet.absoluteFillObject,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'black',
+  },
+});
+
+export default SplashScreen;

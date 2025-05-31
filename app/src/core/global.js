@@ -175,11 +175,6 @@ function responseThumbnail(set, get, data) {
 }
 
 
-
-
-
-
-
 const useGlobal = create((set, get) => ({
 
 
@@ -257,7 +252,7 @@ const useGlobal = create((set, get) => ({
 	socketConnect: async () => {
 		const tokens = await secure.get('tokens')
 
-		const url = `ws://${ADDRESS}/chat/?token=${tokens.access}`
+		const url = `ws://${ADDRESS}/chatAPI/?token=${tokens.access}`
 
 		const socket = new WebSocket(url)
 		socket.onopen = () => {

@@ -14,7 +14,7 @@ function Title({ text, color }) {
 		>
 			{text}
 		</Text>
-	)
+	)  
 }
 
 export default Title

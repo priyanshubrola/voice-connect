@@ -15,8 +15,6 @@ const Tab = createBottomTabNavigator()
 
 
 function HomeScreen({ navigation }) {
-	const socketConnect = useGlobal(state => state.socketConnect)
-	const socketClose = useGlobal(state => state.socketClose)
 	const user = useGlobal(state => state.user)
 
 	useLayoutEffect(() => {
@@ -25,12 +23,7 @@ function HomeScreen({ navigation }) {
 		})
 	}, [])
 
-	useEffect(() => {
-		socketConnect()
-		return () => {
-			socketClose()
-		}
-	}, [])
+	
 
 	function onSearch() {
 		navigation.navigate('Search')
@@ -74,7 +67,7 @@ function HomeScreen({ navigation }) {
 				tabBarShowLabel: false
 			})}
 		>
-      <Tab.Screen name="Requests" component={RequestsScreen} />
+      		<Tab.Screen name="Requests" component={RequestsScreen} />
 			<Tab.Screen name="Friends"  component={FriendsScreen} />
 			<Tab.Screen name="Profile"  component={ProfileScreen} />
     </Tab.Navigator>
